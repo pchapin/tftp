@@ -1,0 +1,14 @@
+# IntelliJ artifacts.
+Java/.idea/workspace.xml
+Java/build
+
+# Code::Blocks artifacts.
+*.layout
+*.depend
+obj
+bin
+
+# Documentation build artifacts.
+ROOT/lab-TFTP.aux
+ROOT/lab-TFTP.log
+ROOT/lab-TFTP.pdf

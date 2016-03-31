@@ -1,0 +1,138 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FILE    : lab-TFTP.tex
+% AUTHOR  : (C) Copyright 2015 by Peter C. Chapin
+% SUBJECT : Trivial FTP
+%
+% In this lab the students will write a peer to peer file transfer utility using TFTP. In the
+% process they will learn something about how transport protocols work... and what they have to
+% think about.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ++++++++++++++++++++++++++++++++
+% Preamble and global declarations
+% ++++++++++++++++++++++++++++++++
+\documentclass[twocolumn]{article}
+
+%\pagestyle{headings}
+%\setlength{\parindent}{0em}
+%\setlength{\parskip}{1.75ex plus0.5ex minus0.5ex}
+
+% +++++++++++++++++++
+% The document itself
+% +++++++++++++++++++
+\begin{document}
+
+% ----------------------
+% Title page information
+% ----------------------
+\title{Trivial FTP}
+\author{Peter C. Chapin\thanks{PChapin@vtc.vsc.edu}\\
+  Vermont Technical College}
+\date{Last Revised: February 5, 2015}
+\maketitle
+
+\section*{Introduction}
+
+In this lab you will write programs that use the TFTP protocol to transfer files from one
+machine to another. The intent is for you to make a utility that could actually be useful to
+you. In the process you will explore some of the issues that transport protocols in general have
+to worry about. TFTP is built on top of UDP and it solves many of the issues that TCP solves...
+although in a much simpler and more limited way.
+
+TFTP is described by RFC-1350. Please read that RFC before doing this lab (it's about 24 KiB).
+Also review RFC-2347, RFC-2348, and RFC-2349 (all are short). These later RFCs describe
+extensions to the TFTP protocol that allow the client and server to exchange options such as
+block size and time-out intervals. I may ask you to implement some or all of these options as
+well (depending on how the time goes).
+
+\section{The Client}
+
+The client should accept the \emph{name} of the server host and the port number (if not the
+default of 69) on the command line. The client should then go into a loop where it prompts the
+user to enter a command. If the user enters the name of a file as the ``command,'' your client
+should contact the server and get that file. The client should provide the user with some
+feedback about the transfer such as the number of blocks transfered. It would also be nice to
+time the transfer and display how much time was needed and the effective data transfer rate.
+When the transfer is complete the client should prompt the user again. If the user types
+``!quit'' at the prompt the client should end.
+
+\section{Example Session}
+
+Start the client like this
+
+\begin{verbatim}
+$ client localhost 9000
+\end{verbatim}
+
+Here I'm assuming the client is named \texttt{client} and that the server is running on the
+non-default port of 9000. The client prints a prompt and allows the user to get multiple files,
+one at a time. For example,
+
+\begin{verbatim}
+get> somefile.txt
+###
+1234 bytes in 0.32s (3856 bytes/s)
+get> dir/somefile.txt
+###########
+5678 bytes in 22.45s (253 bytes/s)
+get> !quit
+\end{verbatim}
+
+All the file names should be relative to the working directory at the server side. However,
+regardless of their location on the server, the files should be stored in the current directory
+on the client side. Thus the file \texttt{dir/somefile.txt} would be stored as just
+\texttt{somefile.txt} on the client.
+
+The example feedback provided by the client above is to print a `\#' mark for each block
+received followed by the exact size of the transfered file at the end of the transfer. You can
+provide somewhat different feedback if you like, but you do need to let the user know that the
+program is actually doing something.
+
+The user ends the session by typing ``!quit''. The client is only required to get files from the
+server. No support for sending files is required although it could be an interesting extension.
+Only the octet transfer mode needs to be supported.
+
+\section{The Server}
+
+The server should use the default TFTP port or, if an overriding port is provided on the command
+line, it should use that port instead. It should log all activity to a log file, the precise
+nature of which is unspecified here. However, it might be nice to use the regular system logging
+facility. In any case the server should have no other user interface (except perhaps debugging
+messages).
+
+The server should use the current working directory as the root directory from which files are
+served. A nice extension might be to have the server read a configuration file where, perhaps,
+multiple directories could be specified, but that is not required here.
+
+The server should handle multiple, concurrent clients and properly demonize itself when it
+starts.
+
+\textit{Security Notes}. The server should ``cleanse'' the path of requested files so that
+clients can't access unauthorized files by creatively using the ``..'' path component. The
+server should also only serve files which have public read access and should only allow existing
+files with public write access to be overwritten. In the case of file write requests the server
+should impose a limit (not specified here) on the largest size of an accepted file. The server
+should not allow reads or writes of any file with a name starting with `.' or that contains
+``unusual'' characters.
+
+The ability to accept write requests is not required in a first version of the server but could
+be considered a reasonable extension. Only the octet transfer mode needs to be specified.
+
+\section{Testing}
+
+There are many issues to consider here: unit testing, ``live'' debugging messages, etc, etc.
+However, I want to point out in this section that you can test each program independently
+against the standard TFTP client and server that come with the system. You may have to install
+appropriate TFTP packages to obtain those programs.
+
+\section{Report}
+
+Write a full report for this lab. Include commented listings of your programs (or at least of
+the interesting parts of your programs) as well as some verbal discussion about how your
+programs work and about some of the issues that arise in systems of this nature. For example,
+consider the effect of various kinds of network errors on your programs (lost packets,
+duplicated packets, or packets arriving out of order). Consider the effect of using a longer (or
+shorter) timeout interval. Would there be any advantage to using a larger block size? These are
+some of the points that would be worth discussing in your report. There may be others as well.
+
+\end{document}
