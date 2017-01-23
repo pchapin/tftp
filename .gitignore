@@ -12,3 +12,9 @@ bin
 ROOT/lab-TFTP.aux
 ROOT/lab-TFTP.log
 ROOT/lab-TFTP.pdf
+
+# Visual Studio artifacts.
+.vs
+TFTP.VC.db
+Debug
+Release
